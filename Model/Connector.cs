@@ -137,12 +137,33 @@ namespace NodeGraph.Model
 		{
 			if( NodeGraphManager.OutputDebugInfo )
 				System.Diagnostics.Debug.WriteLine( "Connector.OnConnect()" );
+			if (port is NodePropertyPort && !port.IsInput)
+			{
+                port.PropertyChanged += this.Port_PropertyChanged;
+			}
+			if (EndPort is NodePropertyPort endPort && StartPort is NodePropertyPort startPort)
+			{
+				endPort.Value = startPort.Value;
+			}
 		}
 
-		public virtual void OnDisconnect( NodePort port )
+        private void Port_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+			if(e.PropertyName == "Value")
+			if (EndPort is NodePropertyPort endPort && StartPort is NodePropertyPort startPort)
+			{
+				//endPort.Value = startPort.Value;
+			}
+        }
+
+        public virtual void OnDisconnect( NodePort port )
 		{
 			if( NodeGraphManager.OutputDebugInfo )
 				System.Diagnostics.Debug.WriteLine( "Connector.OnDisconnect()" );
+			if (port is NodePropertyPort && !port.IsInput)
+			{
+				port.PropertyChanged -= this.Port_PropertyChanged;
+			}
 		}
 
 		public virtual void OnDeserialize()
