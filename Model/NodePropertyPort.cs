@@ -172,7 +172,7 @@ namespace NodeGraph.Model
 				}
 			}
 
-			if( !ValueType.IsClass && ( null == Value ) )
+			if( (!ValueType.IsClass&& Nullable.GetUnderlyingType(ValueType) == null) && ( null == Value ) )
 			{
 				throw new ArgumentNullException( "If typeOfValue is not a class, you cannot specify value as null" );
 			}
@@ -183,7 +183,7 @@ namespace NodeGraph.Model
 				_FieldInfo = nodeType.GetField( Name );
 				_PropertyInfo = nodeType.GetProperty( Name );
 
-				Type propType = ( null != _FieldInfo ) ? _FieldInfo.GetValue( Owner ).GetType() : _PropertyInfo.GetValue( Owner ).GetType();
+				Type propType = ( null != _FieldInfo ) ? _FieldInfo.FieldType : _PropertyInfo.PropertyType;
 				if( propType != ValueType )
 				{
 					throw new ArgumentException( string.Format( "ValueType( {0} ) is invalid, becasue a type of property or field is {1}.",

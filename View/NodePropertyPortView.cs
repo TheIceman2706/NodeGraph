@@ -227,7 +227,7 @@ namespace NodeGraph.View
 			NodePropertyPort port = ViewModel.Model as NodePropertyPort;
 
 			TextBoxEx textBox = new TextBoxEx();
-			textBox.Text = port.Value.ToString();
+			textBox.Text = (port.Value??"").ToString();
 			textBox.SetBinding( TextBox.TextProperty, CreateBinding( port, "Value", null ) );
 			return textBox;
 		}

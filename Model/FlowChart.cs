@@ -139,6 +139,8 @@ namespace NodeGraph.Model
 
 		public override void WriteXml( XmlWriter writer )
 		{
+			writer.WriteStartDocument();
+			writer.WriteStartElement("Flow");
 			base.WriteXml( writer );
 
 			writer.WriteStartElement( "Nodes" );
@@ -157,9 +159,11 @@ namespace NodeGraph.Model
 				connector.WriteXml( writer );
 				writer.WriteEndElement();
 			}
+			writer.WriteEndElement();
+			writer.WriteEndDocument();
 		}
 
-		public override void ReadXml( XmlReader reader )
+		public void ReadXml( XmlReader reader, FlowChart chart = null )
 		{
 			base.ReadXml( reader );
 
@@ -177,18 +181,21 @@ namespace NodeGraph.Model
 
 						Guid guid = Guid.Parse( reader.GetAttribute( "Guid" ) );
 						Type type = Type.GetType( reader.GetAttribute( "Type" ) );
-						FlowChart flowChart = NodeGraphManager.FindFlowChart(
+						FlowChart flowChart = chart??NodeGraphManager.FindFlowChart(
 							Guid.Parse( reader.GetAttribute( "Owner" ) ) );
 
 						if( "Node" == prevReaderName )
 						{
 							Type vmType = Type.GetType( reader.GetAttribute( "ViewModelType" ) );
-
+							if(NodeGraphManager.FindNode(guid) != null)
+								NodeGraphManager.DestroyNode(guid);
 							Node node = NodeGraphManager.CreateNode( true, guid, flowChart, type, 0.0, 0.0, 0, vmType );
 							node.ReadXml( reader );
 						}
 						else
 						{
+							if (NodeGraphManager.FindConnector(guid) != null)
+								NodeGraphManager.DestroyConnector(guid);
 							Connector connector = NodeGraphManager.CreateConnector( false, guid, flowChart, type );
 							connector.ReadXml( reader );
 						}

@@ -184,10 +184,11 @@ namespace NodeGraph.Model
 			StartPort = NodeGraphManager.FindNodePort( Guid.Parse( reader.GetAttribute( "StartPort" ) ) );
 			if( null == StartPort )
 				throw new InvalidOperationException( "StartPort can not be null in Connector.ReadXml()." );
-
+			NodeGraphManager.ConnectTo(StartPort, this );	
 			EndPort = NodeGraphManager.FindNodePort( Guid.Parse( reader.GetAttribute( "EndPort" ) ) );
 			if( null == EndPort )
 				throw new InvalidOperationException( "EndPort can not be null in Connector.ReadXml()." );
+			NodeGraphManager.ConnectTo(EndPort, this);
 		}
 
 		#endregion // Overrides IXmlSerializable

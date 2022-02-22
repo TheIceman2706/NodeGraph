@@ -26,7 +26,7 @@ namespace NodeGraph.Model
 				}
 			}
 
-			if( !valueType.IsClass && ( null == defaultValue ) )
+			if( (!valueType.IsClass && Nullable.GetUnderlyingType(valueType) == null) && ( null == defaultValue ) )
 			{
 				throw new ArgumentException( "If ValueType is not a class, you cannot specify value as null" );
 			}
