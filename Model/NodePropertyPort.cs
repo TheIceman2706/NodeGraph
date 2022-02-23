@@ -57,8 +57,8 @@ namespace NodeGraph.Model
 					prevValue = ( null != _FieldInfo ) ? _FieldInfo.GetValue( Owner ) : _PropertyInfo.GetValue( Owner );
 				}
 				
-				if( value != prevValue )
-				{
+				//if( value != prevValue )
+				//{
 					if( IsDynamic )
 					{
 						_Value = value;
@@ -73,7 +73,7 @@ namespace NodeGraph.Model
 					}
 
 					RaisePropertyChanged( "Value" );
-				}
+				//}
 			}
 		}
 		
