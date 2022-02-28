@@ -173,10 +173,10 @@ namespace NodeGraph.Model
             //    }
             //}
 
-            if (this.StartPort is NodePropertyPort startPropertyPort && this.EndPort is NodePropertyPort endPropertyPort)
-            {
-                endPropertyPort.Value = startPropertyPort.Value;
-            }
+            //if (this.StartPort is NodePropertyPort startPropertyPort && this.EndPort is NodePropertyPort endPropertyPort)
+            //{
+            //    endPropertyPort.Value = startPropertyPort.Value;
+            //}
         }
 
         public virtual void OnDisconnect(NodePort port)
