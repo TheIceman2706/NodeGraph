@@ -119,6 +119,7 @@ namespace NodeGraph.Model
 
             ValueType = valueType;
             Value = value;
+
         }
 
         #endregion // Constructors
