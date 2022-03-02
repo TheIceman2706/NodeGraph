@@ -132,6 +132,8 @@ namespace NodeGraph.Model
 
 		#endregion // Constructor
 
+		public event EventHandler<Connector> Connected, Disconnected;
+
 		#region Destructor
 
 		~NodePort()
@@ -178,12 +180,14 @@ namespace NodeGraph.Model
 		{
 			if( NodeGraphManager.OutputDebugInfo )
 				System.Diagnostics.Debug.WriteLine( "NodePort.OnConnect()" );
+			Connected?.Invoke(this, connector);
 		}
 
 		public virtual void OnDisconnect( Connector connector )
 		{
 			if( NodeGraphManager.OutputDebugInfo )
 				System.Diagnostics.Debug.WriteLine( "NodePort.OnDisconnect()" );
+			Disconnected?.Invoke(this, connector);
 		}
 
 		public virtual void OnDeserialize()

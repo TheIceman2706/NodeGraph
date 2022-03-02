@@ -740,7 +740,7 @@ namespace NodeGraph
         /// <param name="allowMultipleOutput">Multiple outputs are allowed for this port?</param>
         /// <param name="valueType">Type of property value.</param>
         /// <param name="defaultValue">Default property value.</param>
-        // <param name="portViewModelTypeOverride">ViewModelType to override.</param>
+        /// <param name="portViewModelTypeOverride">ViewModelType to override.</param>
         /// <returns>Created NodePropertyPort instance.</returns>
         public static NodePropertyPort CreateNodePropertyPort(bool isDeserializing, Guid guid, Node node, bool isInput, Type valueType, object defaultValue, string name, bool hasEditor,
             Type portViewModelTypeOverride = null, string displayName = "", bool allowMultipleInput = false, bool allowMultipleOutput = true, bool isPortEnabled = true, bool isEnabled = true)
