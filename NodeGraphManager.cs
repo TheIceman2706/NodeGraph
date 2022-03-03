@@ -541,19 +541,29 @@ namespace NodeGraph
 
             if (port.IsInput)
             {
-                node.ViewModel.InputFlowPortViewModels.Remove(port.ViewModel as NodeFlowPortViewModel);
                 if (isFlowPort)
+                {
+                    node.ViewModel.InputFlowPortViewModels.Remove(port.ViewModel as NodeFlowPortViewModel);
                     node.InputFlowPorts.Remove(port as NodeFlowPort);
+                }
                 else
+                {
+                    node.ViewModel.InputPropertyPortViewModels.Remove(port.ViewModel as NodePropertyPortViewModel);
                     node.InputPropertyPorts.Remove(port as NodePropertyPort);
+                }
             }
             else
             {
-                node.ViewModel.OutputFlowPortViewModels.Remove(port.ViewModel as NodeFlowPortViewModel);
                 if (isFlowPort)
+                {
+                    node.ViewModel.OutputFlowPortViewModels.Remove(port.ViewModel as NodeFlowPortViewModel);
                     node.OutputFlowPorts.Remove(port as NodeFlowPort);
+                }
                 else
+                {
+                    node.ViewModel.OutputPropertyPortViewModels.Remove(port.ViewModel as NodePropertyPortViewModel);
                     node.OutputPropertyPorts.Remove(port as NodePropertyPort);
+                }
             }
 
             port.OnPostDestroy();
