@@ -132,6 +132,7 @@ namespace NodeGraph.Model
 
             writer.WriteAttributeString("ValueType", ValueType.AssemblyQualifiedName);
             writer.WriteAttributeString("HasEditor", HasEditor.ToString());
+           // writer.WriteAttributeString("IsPulling", IsPulling.ToString());
 
             Type realValueType = ValueType;
             if (null != Value)
@@ -148,6 +149,7 @@ namespace NodeGraph.Model
         {
             base.ReadXml(reader);
 
+            //IsPulling = bool.Parse(reader.GetAttribute("IsPulling"));
             Type realValueType = Type.GetType(reader.GetAttribute("RealValueType"));
 
             while (reader.Read())

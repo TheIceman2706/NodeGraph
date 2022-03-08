@@ -236,6 +236,9 @@ namespace NodeGraph
                 node.OnCreate();
             }
 
+            else
+                node.OnDeserialize();
+
             //----- return.
 
             return node;

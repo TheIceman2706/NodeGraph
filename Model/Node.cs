@@ -460,6 +460,8 @@ namespace NodeGraph.Model
 					{
 						isOutputPropertyPortsEnd = true;
 					}
+					else if ("Node" == reader.Name)
+						break;
 				}
 
 				if( isInputFlowPortsEnd && isOutputFlowPortsEnd && 
