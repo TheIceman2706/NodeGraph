@@ -340,11 +340,15 @@ namespace NodeGraph.View
 
         public void OnCanvasRenderTransformChanged()
         {
-            Matrix matrix = (this.VisualParent as Canvas).RenderTransform.Value;
-            double scale = matrix.M11;
+            if (this.VisualParent is Canvas canvas)
+            {
 
-            this.SelectionThickness = new Thickness(2.0 / scale);
-            this.CornerRadius = 8.0 / scale;
+                Matrix matrix = canvas.RenderTransform.Value;
+                double scale = matrix.M11;
+
+                this.SelectionThickness = new Thickness(2.0 / scale);
+                this.CornerRadius = 8.0 / scale;
+            }
         }
 
         #endregion // RenderTransform
