@@ -1,37 +1,32 @@
-﻿using NodeGraph.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace NodeGraph.History
 {
-	public class CreateConnectorCommand : NodeGraphCommand
-	{
-		#region Constructor
+    public class CreateConnectorCommand : NodeGraphCommand
+    {
+        #region Constructor
 
-		public CreateConnectorCommand( string name, object undoParams, object redoParams ) : base( name, undoParams, redoParams )
-		{
+        public CreateConnectorCommand(string name, object undoParams, object redoParams) : base(name, undoParams, redoParams)
+        {
 
-		}
+        }
 
-		#endregion // Constructor
+        #endregion // Constructor
 
-		#region Overrides NodeGraphCommand
+        #region Overrides NodeGraphCommand
 
-		public override void Undo()
-		{
-			Guid guid = ( Guid )UndoParams;
+        public override void Undo()
+        {
+            Guid guid = (Guid)this.UndoParams;
 
-			NodeGraphManager.DestroyConnector( guid );
-		}
+            NodeGraphManager.DestroyConnector(guid);
+        }
 
-		public override void Redo()
-		{
-			NodeGraphManager.DeserializeConnector( RedoParams as string );
-		}
+        public override void Redo()
+        {
+            NodeGraphManager.DeserializeConnector(this.RedoParams as string);
+        }
 
-		#endregion // Overrides NodeGraphCommand
-	}
+        #endregion // Overrides NodeGraphCommand
+    }
 }

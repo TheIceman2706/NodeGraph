@@ -1,326 +1,335 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NodeGraph.History
 {
-	/// <summary>
-	/// History stack for NodeGraph. 
-	/// </summary>
-	public class NodeGraphHistory
-	{
-		#region Transaction
+    /// <summary>
+    /// History stack for NodeGraph. 
+    /// </summary>
+    public class NodeGraphHistory
+    {
+        #region Transaction
 
-		public class Transaction
-		{
-			public string Name { get; private set; }
+        public class Transaction
+        {
+            public string Name
+            {
+                get; private set;
+            }
 
-			public List<NodeGraphCommand> Commands = new List<NodeGraphCommand>();
+            public List<NodeGraphCommand> Commands = new List<NodeGraphCommand>();
 
-			public Transaction( string name )
-			{
-				Name = name;
-			}
+            public Transaction(string name)
+            {
+                this.Name = name;
+            }
 
-			public void Add( NodeGraphCommand command )
-			{
-				Commands.Add( command );
-			}
+            public void Add(NodeGraphCommand command)
+            {
+                this.Commands.Add(command);
+            }
 
-			internal void Undo()
-			{
-				for( int i = Commands.Count - 1; i >= 0; --i )
-				{
-					Commands[ i ].Undo();
-				}
-			}
+            internal void Undo()
+            {
+                for (int i = this.Commands.Count - 1; i >= 0; --i)
+                {
+                    this.Commands[i].Undo();
+                }
+            }
 
-			internal void Redo()
-			{
-				for( int i = 0; i < Commands.Count; ++i )
-				{
-					Commands[ i ].Redo();
-				}
-			}
-		};
+            internal void Redo()
+            {
+                for (int i = 0; i < this.Commands.Count; ++i)
+                {
+                    this.Commands[i].Redo();
+                }
+            }
+        };
 
-		#endregion // Transaction
+        #endregion // Transaction
 
-		#region Fields
+        #region Fields
 
-		private List<Transaction> _Transactions = new List<Transaction>();
+        private List<Transaction> _Transactions = new List<Transaction>();
 
-		private bool _IsProcessingHistory = false;
+        private bool _IsProcessingHistory = false;
 
-		private int _CurrentPos = -1;
+        private int _CurrentPos = -1;
 
-		#endregion // Fields
+        #endregion // Fields
 
-		#region Properties
+        #region Properties
 
-		public object Owner { get; private set; }
+        public object Owner
+        {
+            get; private set;
+        }
 
-		#endregion Properites
+        #endregion Properites
 
-		#region Constructor
+        #region Constructor
 
-		public NodeGraphHistory( object owner, int numTransactions = 100 )
-		{
-			Owner = owner;
+        public NodeGraphHistory(object owner, int numTransactions = 100)
+        {
+            this.Owner = owner;
 
-			SetNumberOfTransactions( numTransactions );
-		}
+            this.SetNumberOfTransactions(numTransactions);
+        }
 
-		#endregion // Constructor
+        #endregion // Constructor
 
-		#region Private Methods
+        #region Private Methods
 
-		#endregion // Private Methods
+        #endregion // Private Methods
 
-		#region Public Methods
+        #region Public Methods
 
-		public void Clear()
-		{
-			_Transactions.Clear();
-			_CurrentPos = -1;
-		}
+        public void Clear()
+        {
+            this._Transactions.Clear();
+            this._CurrentPos = -1;
+        }
 
-		public int GetNumberOfTransactions()
-		{
-			return _Transactions.Count;
-		}
+        public int GetNumberOfTransactions()
+        {
+            return this._Transactions.Count;
+        }
 
-		public void SetNumberOfTransactions( int numTransactions, bool bClear = false )
-		{
-			if( bClear )
-			{
-				_Transactions.Clear();
-				_CurrentPos = -1;
-			}
+        public void SetNumberOfTransactions(int numTransactions, bool bClear = false)
+        {
+            if (bClear)
+            {
+                this._Transactions.Clear();
+                this._CurrentPos = -1;
+            }
 
-			int prevNumTransactions = _Transactions.Count;
+            int prevNumTransactions = this._Transactions.Count;
 
-			if( prevNumTransactions < numTransactions )
-			{
-				List<Transaction> newTransactions = new List<Transaction>();
-				for( int i = 0; i < numTransactions; ++i )
-				{
-					if( i < prevNumTransactions )
-					{
-						newTransactions.Add( _Transactions[ i ] );
-					}
-					else
-					{
-						newTransactions.Add( null );
-					}
-				}
-				_Transactions = newTransactions;
-			}
-			else if( prevNumTransactions > numTransactions )
-			{
-				List<Transaction> newTransactions = new List<Transaction>();
+            if (prevNumTransactions < numTransactions)
+            {
+                List<Transaction> newTransactions = new List<Transaction>();
+                for (int i = 0; i < numTransactions; ++i)
+                {
+                    if (i < prevNumTransactions)
+                    {
+                        newTransactions.Add(this._Transactions[i]);
+                    }
+                    else
+                    {
+                        newTransactions.Add(null);
+                    }
+                }
+                this._Transactions = newTransactions;
+            }
+            else if (prevNumTransactions > numTransactions)
+            {
+                List<Transaction> newTransactions = new List<Transaction>();
 
-				int start = 0;
-				if( _CurrentPos >= numTransactions )
-				{
-					start = _CurrentPos - numTransactions;	
-				}
-				else
-				{
-					start = prevNumTransactions - 1 - numTransactions;
-				}
+                int start = 0;
+                if (this._CurrentPos >= numTransactions)
+                {
+                    start = this._CurrentPos - numTransactions;
+                }
+                else
+                {
+                    start = prevNumTransactions - 1 - numTransactions;
+                }
 
-				int count = 0;
-				for( int i = start; i <= _CurrentPos; ++i, ++count )
-				{
-					newTransactions.Add( _Transactions[ i ] );
-				}
+                int count = 0;
+                for (int i = start; i <= this._CurrentPos; ++i, ++count)
+                {
+                    newTransactions.Add(this._Transactions[i]);
+                }
 
-				for( int i = 0; i < numTransactions - count; ++i )
-				{
-					newTransactions.Add( null );
-				}
+                for (int i = 0; i < numTransactions - count; ++i)
+                {
+                    newTransactions.Add(null);
+                }
 
-				_Transactions = newTransactions;
-			}
-		}
+                this._Transactions = newTransactions;
+            }
+        }
 
-		public List<Transaction> GetTransactions()
-		{
-			return _Transactions;
-		}
+        public List<Transaction> GetTransactions()
+        {
+            return this._Transactions;
+        }
 
-		public void GetTransactionList( out List<Transaction> undoTransactionList, 
-			out Transaction currentTransaction, 
-			out List<Transaction> redoTransactionList )
-		{
-			undoTransactionList = new List<Transaction>();
-			currentTransaction = null;
-			redoTransactionList = new List<Transaction>();
+        public void GetTransactionList(out List<Transaction> undoTransactionList,
+            out Transaction currentTransaction,
+            out List<Transaction> redoTransactionList)
+        {
+            undoTransactionList = new List<Transaction>();
+            currentTransaction = null;
+            redoTransactionList = new List<Transaction>();
 
-			if( -1 == _CurrentPos )
-			{
-				return;
-			}
+            if (-1 == this._CurrentPos)
+            {
+                return;
+            }
 
-			for( int i = 0; i < _CurrentPos; ++i )
-			{
-				undoTransactionList.Add( _Transactions[ i ] );
-			}
+            for (int i = 0; i < this._CurrentPos; ++i)
+            {
+                undoTransactionList.Add(this._Transactions[i]);
+            }
 
-			currentTransaction = _Transactions[ _CurrentPos ];
+            currentTransaction = this._Transactions[this._CurrentPos];
 
-			for( int i = _CurrentPos + 1; i < _Transactions.Count; ++i )
-			{
-				redoTransactionList.Add( _Transactions[ i ] );
-			}
-		}
+            for (int i = this._CurrentPos + 1; i < this._Transactions.Count; ++i)
+            {
+                redoTransactionList.Add(this._Transactions[i]);
+            }
+        }
 
-		private Transaction _TransactionAdding = null;
-		public void BeginTransaction( string name )
-		{
-			if( _IsProcessingHistory )
-			{
-				return;
-			}
+        private Transaction _TransactionAdding = null;
+        public void BeginTransaction(string name)
+        {
+            if (this._IsProcessingHistory)
+            {
+                return;
+            }
 
-			if( null != _TransactionAdding )
-			{
-				EndTransaction( true );
-			}
+            if (null != this._TransactionAdding)
+            {
+                this.EndTransaction(true);
+            }
 
-			_TransactionAdding = new Transaction( name );
+            this._TransactionAdding = new Transaction(name);
 
-			if( NodeGraphManager.OutputDebugInfo )
-			{
-				System.Diagnostics.Debug.WriteLine( string.Format( "BeginTransaction {0}", _TransactionAdding.Name ) );
-			}
-		}
-		
-		public void AddCommand( NodeGraphCommand command )
-		{
-			if( _IsProcessingHistory )
-			{
-				return;
-			}
+            if (NodeGraphManager.OutputDebugInfo)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("BeginTransaction {0}", this._TransactionAdding.Name));
+            }
+        }
 
-			if( null != _TransactionAdding )
-			{
-				_TransactionAdding.Add( command );
+        public void AddCommand(NodeGraphCommand command)
+        {
+            if (this._IsProcessingHistory)
+            {
+                return;
+            }
 
-				if( NodeGraphManager.OutputDebugInfo )
-				{
-					System.Diagnostics.Debug.WriteLine( string.Format( "Add command to transaction {0} : {1}", _TransactionAdding.Name, command.Name ) );
-				}
-			}
-		}
+            if (null != this._TransactionAdding)
+            {
+                this._TransactionAdding.Add(command);
 
-		public void EndTransaction( bool bCancel )
-		{
-			if( _IsProcessingHistory )
-			{
-				return;
-			}
+                if (NodeGraphManager.OutputDebugInfo)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("Add command to transaction {0} : {1}", this._TransactionAdding.Name, command.Name));
+                }
+            }
+        }
 
-			if( null == _TransactionAdding )
-			{
-				return;
-			}
-			
-			if( !bCancel && ( 0 != _TransactionAdding.Commands.Count ) )
-			{
-				int nextPos = _CurrentPos + 1;
-				if( nextPos >= _Transactions.Count ) // shift
-				{
-					_Transactions.RemoveAt( 0 );
-					_Transactions.Add( null );
-				}
-				else
-				{
-					_CurrentPos = nextPos;
-				}
+        public void EndTransaction(bool bCancel)
+        {
+            if (this._IsProcessingHistory)
+            {
+                return;
+            }
 
-				_Transactions[ _CurrentPos ] = _TransactionAdding;
+            if (null == this._TransactionAdding)
+            {
+                return;
+            }
 
-				for( int i = _CurrentPos + 1; i < _Transactions.Count; ++i )
-				{
-					_Transactions[ i ] = null;
-				}
+            if (!bCancel && (0 != this._TransactionAdding.Commands.Count))
+            {
+                int nextPos = this._CurrentPos + 1;
+                if (nextPos >= this._Transactions.Count) // shift
+                {
+                    this._Transactions.RemoveAt(0);
+                    this._Transactions.Add(null);
+                }
+                else
+                {
+                    this._CurrentPos = nextPos;
+                }
 
-			}
+                this._Transactions[this._CurrentPos] = this._TransactionAdding;
 
-			if( NodeGraphManager.OutputDebugInfo )
-			{
-				if( bCancel || ( 0 == _TransactionAdding.Commands.Count ) )
-					System.Diagnostics.Debug.WriteLine( string.Format( "CancelTransaction {0}", _TransactionAdding.Name ) );
-				else
-					System.Diagnostics.Debug.WriteLine( string.Format( "EndTransaction {0}", _TransactionAdding.Name ) );
-			}
+                for (int i = this._CurrentPos + 1; i < this._Transactions.Count; ++i)
+                {
+                    this._Transactions[i] = null;
+                }
 
-			_TransactionAdding = null;
-		}
+            }
 
-		public void Undo()
-		{
-			MoveTo( _CurrentPos - 1 );
-		}
+            if (NodeGraphManager.OutputDebugInfo)
+            {
+                if (bCancel || (0 == this._TransactionAdding.Commands.Count))
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("CancelTransaction {0}", this._TransactionAdding.Name));
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("EndTransaction {0}", this._TransactionAdding.Name));
+                }
+            }
 
-		public void Redo()
-		{
-			MoveTo( _CurrentPos + 1 );
-		}
+            this._TransactionAdding = null;
+        }
 
-		public void MoveTo( int pos )
-		{
-			_IsProcessingHistory = true;
+        public void Undo()
+        {
+            this.MoveTo(this._CurrentPos - 1);
+        }
 
-			int realPos = Math.Min( _Transactions.Count - 1, Math.Max( -1, pos ) );
+        public void Redo()
+        {
+            this.MoveTo(this._CurrentPos + 1);
+        }
 
-			// redo.
-			if( _CurrentPos < realPos )
-			{
-				int lastPos = -1000;
-				for( int i = _CurrentPos + 1; i <= realPos; ++i )
-				{
-					if( null == _Transactions[ i ] )
-						break;
+        public void MoveTo(int pos)
+        {
+            this._IsProcessingHistory = true;
 
-					_Transactions[ i ].Redo();
-					lastPos = i;
+            int realPos = Math.Min(this._Transactions.Count - 1, Math.Max(-1, pos));
 
-					if( NodeGraphManager.OutputDebugInfo )
-					{
-						System.Diagnostics.Debug.WriteLine( string.Format( "Redo {0} : {1}", i, _Transactions[ i ].Name ) );
-					}
-				}
+            // redo.
+            if (this._CurrentPos < realPos)
+            {
+                int lastPos = -1000;
+                for (int i = this._CurrentPos + 1; i <= realPos; ++i)
+                {
+                    if (null == this._Transactions[i])
+                    {
+                        break;
+                    }
 
-				_CurrentPos = ( -1000 != lastPos ) ? lastPos : _CurrentPos;
-			}
-			// undo
-			else if( _CurrentPos > realPos )
-			{
-				for( int i = _CurrentPos; i > realPos; --i )
-				{
-					_Transactions[ i ].Undo();
+                    this._Transactions[i].Redo();
+                    lastPos = i;
 
-					if( NodeGraphManager.OutputDebugInfo )
-					{
-						System.Diagnostics.Debug.WriteLine( string.Format( "Undo {0} : {1}", i, _Transactions[ i ].Name ) );
-					}
-				}
-				_CurrentPos = realPos;
-			}
-			// nothing.
-			else
-			{
+                    if (NodeGraphManager.OutputDebugInfo)
+                    {
+                        System.Diagnostics.Debug.WriteLine(string.Format("Redo {0} : {1}", i, this._Transactions[i].Name));
+                    }
+                }
 
-			}
+                this._CurrentPos = (-1000 != lastPos) ? lastPos : this._CurrentPos;
+            }
+            // undo
+            else if (this._CurrentPos > realPos)
+            {
+                for (int i = this._CurrentPos; i > realPos; --i)
+                {
+                    this._Transactions[i].Undo();
 
-			_IsProcessingHistory = false;
-		}
+                    if (NodeGraphManager.OutputDebugInfo)
+                    {
+                        System.Diagnostics.Debug.WriteLine(string.Format("Undo {0} : {1}", i, this._Transactions[i].Name));
+                    }
+                }
+                this._CurrentPos = realPos;
+            }
+            // nothing.
+            else
+            {
 
-		#endregion // Public Methods
-	}
+            }
+
+            this._IsProcessingHistory = false;
+        }
+
+        #endregion // Public Methods
+    }
 }

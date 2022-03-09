@@ -1,7 +1,5 @@
-﻿using NodeGraph.ViewModel;
-using System;
+﻿using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -39,54 +37,58 @@ namespace NodeGraph.Model
             get
             {
                 //if possible, pull information through
-                if (IsInput && Connectors.Count > 0 && Connectors[0] != null && Connectors[0].StartPort is NodePropertyPort startPort)
+                if (this.IsInput && this.Connectors.Count > 0 && this.Connectors[0] != null && this.Connectors[0].StartPort is NodePropertyPort startPort)
                 {
                     return startPort.Value;
                 }
                 else
                 {
-                    if (IsDynamic)
+                    if (this.IsDynamic)
                     {
-                        return _Value;
+                        return this._Value;
                     }
                     else
                     {
-                        return (null != _FieldInfo) ? _FieldInfo.GetValue(Owner) : _PropertyInfo.GetValue(Owner);
+                        return (null != this._FieldInfo) ? this._FieldInfo.GetValue(this.Owner) : this._PropertyInfo.GetValue(this.Owner);
                     }
                 }
             }
             set
             {
                 object prevValue;
-                if (IsDynamic)
+                if (this.IsDynamic)
                 {
-                    prevValue = _Value;
+                    prevValue = this._Value;
                 }
                 else
                 {
-                    prevValue = (null != _FieldInfo) ? _FieldInfo.GetValue(Owner) : _PropertyInfo.GetValue(Owner);
+                    prevValue = (null != this._FieldInfo) ? this._FieldInfo.GetValue(this.Owner) : this._PropertyInfo.GetValue(this.Owner);
                 }
 
                 //if( value != prevValue )
                 //{
-                if (IsDynamic)
+                if (this.IsDynamic)
                 {
-                    _Value = value;
-                    OnDynamicPropertyPortValueChanged(prevValue, value);
+                    this._Value = value;
+                    this.OnDynamicPropertyPortValueChanged(prevValue, value);
                 }
                 else
                 {
                     try
                     {
-                        if (null != _FieldInfo)
-                            _FieldInfo.SetValue(Owner, value);
-                        else if (null != _PropertyInfo)
-                            _PropertyInfo.SetValue(Owner, value);
+                        if (null != this._FieldInfo)
+                        {
+                            this._FieldInfo.SetValue(this.Owner, value);
+                        }
+                        else if (null != this._PropertyInfo)
+                        {
+                            this._PropertyInfo.SetValue(this.Owner, value);
+                        }
                     }
                     catch (Exception) { }
                 }
 
-                RaisePropertyChanged("Value");
+                this.RaisePropertyChanged("Value");
                 //}
             }
         }
@@ -106,19 +108,19 @@ namespace NodeGraph.Model
         public NodePropertyPort(Guid guid, Node node, bool isInput, Type valueType, object value, string name, bool hasEditor) :
             base(guid, node, isInput)
         {
-            Name = name;
-            HasEditor = hasEditor;
+            this.Name = name;
+            this.HasEditor = hasEditor;
 
             Type nodeType = node.GetType();
-            _FieldInfo = nodeType.GetField(Name);
-            _PropertyInfo = nodeType.GetProperty(Name);
+            this._FieldInfo = nodeType.GetField(this.Name);
+            this._PropertyInfo = nodeType.GetProperty(this.Name);
 
-            IsPulling = _PropertyInfo != null && _PropertyInfo.GetCustomAttribute<NodePropertyPortAttribute>().IsPulling;
+            this.IsPulling = this._PropertyInfo != null && this._PropertyInfo.GetCustomAttribute<NodePropertyPortAttribute>().IsPulling;
 
-            IsDynamic = (null == _FieldInfo) && (null == _PropertyInfo);
+            this.IsDynamic = (null == this._FieldInfo) && (null == this._PropertyInfo);
 
-            ValueType = valueType;
-            Value = value;
+            this.ValueType = valueType;
+            this.Value = value;
 
         }
 
@@ -130,19 +132,19 @@ namespace NodeGraph.Model
         {
             base.WriteXml(writer);
 
-            writer.WriteAttributeString("ValueType", ValueType.AssemblyQualifiedName);
-            writer.WriteAttributeString("HasEditor", HasEditor.ToString());
-           // writer.WriteAttributeString("IsPulling", IsPulling.ToString());
+            writer.WriteAttributeString("ValueType", this.ValueType.AssemblyQualifiedName);
+            writer.WriteAttributeString("HasEditor", this.HasEditor.ToString());
+            // writer.WriteAttributeString("IsPulling", IsPulling.ToString());
 
-            Type realValueType = ValueType;
-            if (null != Value)
+            Type realValueType = this.ValueType;
+            if (null != this.Value)
             {
-                realValueType = Value.GetType();
+                realValueType = this.Value.GetType();
             }
             writer.WriteAttributeString("RealValueType", realValueType.AssemblyQualifiedName);
 
-            var serializer = new XmlSerializer(realValueType);
-            serializer.Serialize(writer, Value);
+            XmlSerializer serializer = new XmlSerializer(realValueType);
+            serializer.Serialize(writer, this.Value);
         }
 
         public override void ReadXml(XmlReader reader)
@@ -156,8 +158,8 @@ namespace NodeGraph.Model
             {
                 if (XmlNodeType.Element == reader.NodeType)
                 {
-                    var serializer = new XmlSerializer(realValueType);
-                    Value = serializer.Deserialize(reader);
+                    XmlSerializer serializer = new XmlSerializer(realValueType);
+                    this.Value = serializer.Deserialize(reader);
                     break;
                 }
             }
@@ -171,7 +173,7 @@ namespace NodeGraph.Model
         {
             base.OnCreate();
 
-            CheckValidity();
+            this.CheckValidity();
         }
 
 
@@ -179,7 +181,7 @@ namespace NodeGraph.Model
         {
             base.OnDeserialize();
 
-            CheckValidity();
+            this.CheckValidity();
         }
 
         #endregion // Callbacks
@@ -188,30 +190,30 @@ namespace NodeGraph.Model
 
         public void CheckValidity()
         {
-            if (null != Value)
+            if (null != this.Value)
             {
-                if (!ValueType.IsAssignableFrom(Value.GetType()))
+                if (!this.ValueType.IsAssignableFrom(this.Value.GetType()))
                 {
                     throw new ArgumentException("Type of value is not same as typeOfvalue.");
                 }
             }
 
-            if ((!ValueType.IsClass && Nullable.GetUnderlyingType(ValueType) == null) && (null == Value))
+            if ((!this.ValueType.IsClass && Nullable.GetUnderlyingType(this.ValueType) == null) && (null == this.Value))
             {
                 throw new ArgumentNullException("If typeOfValue is not a class, you cannot specify value as null");
             }
 
-            if (!IsDynamic)
+            if (!this.IsDynamic)
             {
-                Type nodeType = Owner.GetType();
-                _FieldInfo = nodeType.GetField(Name);
-                _PropertyInfo = nodeType.GetProperty(Name);
+                Type nodeType = this.Owner.GetType();
+                this._FieldInfo = nodeType.GetField(this.Name);
+                this._PropertyInfo = nodeType.GetProperty(this.Name);
 
-                Type propType = (null != _FieldInfo) ? _FieldInfo.FieldType : _PropertyInfo.PropertyType;
-                if (propType != ValueType)
+                Type propType = (null != this._FieldInfo) ? this._FieldInfo.FieldType : this._PropertyInfo.PropertyType;
+                if (propType != this.ValueType)
                 {
                     throw new ArgumentException(string.Format("ValueType( {0} ) is invalid, becasue a type of property or field is {1}.",
-                        ValueType.Name, propType.Name));
+                        this.ValueType.Name, propType.Name));
                 }
             }
         }

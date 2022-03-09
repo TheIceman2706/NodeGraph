@@ -1,58 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NodeGraph.History
+﻿namespace NodeGraph.History
 {
-	/// <summary>
-	/// Command for history stack.
-	/// </summary>
-	public abstract class NodeGraphCommand
-	{
-		#region Properties
+    /// <summary>
+    /// Command for history stack.
+    /// </summary>
+    public abstract class NodeGraphCommand
+    {
+        #region Properties
 
-		/// <summary>
-		/// Name of command for display or debugging.
-		/// </summary>
-		public string Name { get; private set; }
+        /// <summary>
+        /// Name of command for display or debugging.
+        /// </summary>
+        public string Name
+        {
+            get; private set;
+        }
 
-		/// <summary>
-		/// Parameters for executing undo.
-		/// </summary>
-		public object UndoParams { get; private set; }
+        /// <summary>
+        /// Parameters for executing undo.
+        /// </summary>
+        public object UndoParams
+        {
+            get; private set;
+        }
 
-		/// <summary>
-		/// Parameters for executing redo.
-		/// </summary>
-		public object RedoParams { get; private set; }
+        /// <summary>
+        /// Parameters for executing redo.
+        /// </summary>
+        public object RedoParams
+        {
+            get; private set;
+        }
 
-		#endregion // Properties
+        #endregion // Properties
 
-		#region Methods
+        #region Methods
 
-		/// <summary>
-		/// Cancel command.
-		/// </summary>
-		public abstract void Undo();
+        /// <summary>
+        /// Cancel command.
+        /// </summary>
+        public abstract void Undo();
 
-		/// <summary>
-		/// Restore command.
-		/// </summary>
-		public abstract void Redo();
+        /// <summary>
+        /// Restore command.
+        /// </summary>
+        public abstract void Redo();
 
-		#endregion // Methods
+        #endregion // Methods
 
-		#region Constructor
+        #region Constructor
 
-		public NodeGraphCommand( string name, object undoParams, object redoParams )
-		{
-			Name = name;
-			UndoParams = undoParams;
-			RedoParams = redoParams;
-		}
+        public NodeGraphCommand(string name, object undoParams, object redoParams)
+        {
+            this.Name = name;
+            this.UndoParams = undoParams;
+            this.RedoParams = redoParams;
+        }
 
-		#endregion // Constructor
-	}
+        #endregion // Constructor
+    }
 }

@@ -36,14 +36,14 @@ namespace NodeGraph.Model
                 throw new ArgumentException("If ValueType is not a class, you cannot specify value as null");
             }
 
-            ValueType = valueType;
-            IsInput = isInput;
-            DefaultValue = defaultValue;
-            AllowMultipleInput = false;
-            AllowMultipleOutput = true;
-            HasEditor = hasEditor;
+            this.ValueType = valueType;
+            this.IsInput = isInput;
+            this.DefaultValue = defaultValue;
+            this.AllowMultipleInput = false;
+            this.AllowMultipleOutput = true;
+            this.HasEditor = hasEditor;
 
-            if (!typeof(NodePropertyPortViewModel).IsAssignableFrom(ViewModelType))
+            if (!typeof(NodePropertyPortViewModel).IsAssignableFrom(this.ViewModelType))
             {
                 throw new ArgumentException("ViewModelType of NodePropertyAttribute must be subclass of NodePropertyPortViewModel");
             }

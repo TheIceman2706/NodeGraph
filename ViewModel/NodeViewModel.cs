@@ -1,159 +1,141 @@
 ﻿using NodeGraph.Model;
 using NodeGraph.View;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
 
 namespace NodeGraph.ViewModel
 {
-	[NodeViewModel()]
-	public class NodeViewModel : ViewModelBase
-	{
-		#region Fields
+    [NodeViewModel()]
+    public class NodeViewModel : ViewModelBase
+    {
+        #region Fields
 
-		public NodeView View;
+        public NodeView View;
 
-		public readonly Type NodeViewType;
+        public readonly Type NodeViewType;
 
-		#endregion // Fields
+        #endregion // Fields
 
-		#region Properties
+        #region Properties
 
-		private Node _Model;
-		public Node Model
-		{
-			get { return _Model; }
-			set
-			{
-				if( value != _Model )
-				{
-					_Model = value;
-					RaisePropertyChanged( "Model" );
-				}
-			}
-		}
+        private Node _Model;
+        public Node Model
+        {
+            get => this._Model;
+            set
+            {
+                if (value != this._Model)
+                {
+                    this._Model = value;
+                    this.RaisePropertyChanged("Model");
+                }
+            }
+        }
 
-		public Visibility InputFlowPortsVisibility
-		{
-			get { return ( 0 < _InputFlowPortViewModels.Count ) ? Visibility.Visible : Visibility.Collapsed; }
-		}
+        public Visibility InputFlowPortsVisibility => (0 < this._InputFlowPortViewModels.Count) ? Visibility.Visible : Visibility.Collapsed;
 
-		public Visibility OutputFlowPortsVisibility
-		{
-			get { return ( 0 < _OutputFlowPortViewModels.Count ) ? Visibility.Visible : Visibility.Collapsed; }
-		}
+        public Visibility OutputFlowPortsVisibility => (0 < this._OutputFlowPortViewModels.Count) ? Visibility.Visible : Visibility.Collapsed;
 
-		private ObservableCollection<NodeFlowPortViewModel> _InputFlowPortViewModels = new ObservableCollection<NodeFlowPortViewModel>();
-		public ObservableCollection<NodeFlowPortViewModel> InputFlowPortViewModels
-		{
-			get { return _InputFlowPortViewModels; }
-			set
-			{
-				if( value != _InputFlowPortViewModels )
-				{
-					_InputFlowPortViewModels = value;
-					RaisePropertyChanged( "InputFlowPortViewModels" );
-				}
-			}
-		}
+        private ObservableCollection<NodeFlowPortViewModel> _InputFlowPortViewModels = new ObservableCollection<NodeFlowPortViewModel>();
+        public ObservableCollection<NodeFlowPortViewModel> InputFlowPortViewModels
+        {
+            get => this._InputFlowPortViewModels;
+            set
+            {
+                if (value != this._InputFlowPortViewModels)
+                {
+                    this._InputFlowPortViewModels = value;
+                    this.RaisePropertyChanged("InputFlowPortViewModels");
+                }
+            }
+        }
 
-		private ObservableCollection<NodeFlowPortViewModel> _OutputFlowPortViewModels = new ObservableCollection<NodeFlowPortViewModel>();
-		public ObservableCollection<NodeFlowPortViewModel> OutputFlowPortViewModels
-		{
-			get { return _OutputFlowPortViewModels; }
-			set
-			{
-				if( value != _OutputFlowPortViewModels )
-				{
-					_OutputFlowPortViewModels = value;
-					RaisePropertyChanged( "OutputFlowPortViewModels" );
-				}
-			}
-		}
+        private ObservableCollection<NodeFlowPortViewModel> _OutputFlowPortViewModels = new ObservableCollection<NodeFlowPortViewModel>();
+        public ObservableCollection<NodeFlowPortViewModel> OutputFlowPortViewModels
+        {
+            get => this._OutputFlowPortViewModels;
+            set
+            {
+                if (value != this._OutputFlowPortViewModels)
+                {
+                    this._OutputFlowPortViewModels = value;
+                    this.RaisePropertyChanged("OutputFlowPortViewModels");
+                }
+            }
+        }
 
-		private bool _IsSelected;
-		public bool IsSelected
-		{
-			get { return _IsSelected; }
-			set
-			{
-				if( value != _IsSelected )
-				{
-					_IsSelected = value;
-					RaisePropertyChanged( "IsSelected" );
-				}
-			}
-		}
+        private bool _IsSelected;
+        public bool IsSelected
+        {
+            get => this._IsSelected;
+            set
+            {
+                if (value != this._IsSelected)
+                {
+                    this._IsSelected = value;
+                    this.RaisePropertyChanged("IsSelected");
+                }
+            }
+        }
 
-		#endregion // Node Properties
+        #endregion // Node Properties
 
-		#region NodePropertyPorts
+        #region NodePropertyPorts
 
-		public Visibility InputPropertyPortsVisibility
-		{
-			get { return ( 0 < _InputPropertyPortViewModels.Count ) ? Visibility.Visible : Visibility.Collapsed; }
-		}
+        public Visibility InputPropertyPortsVisibility => (0 < this._InputPropertyPortViewModels.Count) ? Visibility.Visible : Visibility.Collapsed;
 
-		public Visibility OutputPropertyPortsVisibility
-		{
-			get { return ( 0 < _OutputPropertyPortViewModels.Count ) ? Visibility.Visible : Visibility.Collapsed; }
-		}
+        public Visibility OutputPropertyPortsVisibility => (0 < this._OutputPropertyPortViewModels.Count) ? Visibility.Visible : Visibility.Collapsed;
 
-		private ObservableCollection<NodePropertyPortViewModel> _InputPropertyPortViewModels = new ObservableCollection<NodePropertyPortViewModel>();
-		public ObservableCollection<NodePropertyPortViewModel> InputPropertyPortViewModels
-		{
-			get { return _InputPropertyPortViewModels; }
-			set
-			{
-				if( value != _InputPropertyPortViewModels )
-				{
-					_InputPropertyPortViewModels = value;
-					RaisePropertyChanged( "InputPropertyPortViewModels" );
-				}
-			}
-		}
+        private ObservableCollection<NodePropertyPortViewModel> _InputPropertyPortViewModels = new ObservableCollection<NodePropertyPortViewModel>();
+        public ObservableCollection<NodePropertyPortViewModel> InputPropertyPortViewModels
+        {
+            get => this._InputPropertyPortViewModels;
+            set
+            {
+                if (value != this._InputPropertyPortViewModels)
+                {
+                    this._InputPropertyPortViewModels = value;
+                    this.RaisePropertyChanged("InputPropertyPortViewModels");
+                }
+            }
+        }
 
-		private ObservableCollection<NodePropertyPortViewModel> _OutputPropertyPortViewModels = new ObservableCollection<NodePropertyPortViewModel>();
-		public ObservableCollection<NodePropertyPortViewModel> OutputPropertyPortViewModels
-		{
-			get { return _OutputPropertyPortViewModels; }
-			set
-			{
-				if( value != _OutputPropertyPortViewModels )
-				{
-					_OutputPropertyPortViewModels = value;
-					RaisePropertyChanged( "OutputPropertyPortViewModels" );
-				}
-			}
-		}
+        private ObservableCollection<NodePropertyPortViewModel> _OutputPropertyPortViewModels = new ObservableCollection<NodePropertyPortViewModel>();
+        public ObservableCollection<NodePropertyPortViewModel> OutputPropertyPortViewModels
+        {
+            get => this._OutputPropertyPortViewModels;
+            set
+            {
+                if (value != this._OutputPropertyPortViewModels)
+                {
+                    this._OutputPropertyPortViewModels = value;
+                    this.RaisePropertyChanged("OutputPropertyPortViewModels");
+                }
+            }
+        }
 
-		#endregion // NodePropertyPorts
+        #endregion // NodePropertyPorts
 
-		#region Constructors
+        #region Constructors
 
-		public NodeViewModel( Node node ) : base( node )
-		{
-			Model = node ?? throw new ArgumentException( "Node can not be null in NodeViewModel constructor" );
-		}
+        public NodeViewModel(Node node) : base(node)
+        {
+            this.Model = node ?? throw new ArgumentException("Node can not be null in NodeViewModel constructor");
+        }
 
-		#endregion // Constructors
-		
-		#region Events
+        #endregion // Constructors
 
-		protected override void ModelPropertyChanged( object sender, PropertyChangedEventArgs e )
-		{
-			base.ModelPropertyChanged( sender, e );
+        #region Events
 
-			RaisePropertyChanged( e.PropertyName );
-		}
+        protected override void ModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            base.ModelPropertyChanged(sender, e);
 
-		#endregion // Events
-	}
+            this.RaisePropertyChanged(e.PropertyName);
+        }
+
+        #endregion // Events
+    }
 }

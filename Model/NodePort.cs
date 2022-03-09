@@ -5,236 +5,253 @@ using System.Xml;
 
 namespace NodeGraph.Model
 {
-	public class NodePort : ModelBase
-	{
-		#region Fields
+    public class NodePort : ModelBase
+    {
+        #region Fields
 
-		public readonly bool IsInput;
+        public readonly bool IsInput;
 
-		public readonly Node Owner;
+        public readonly Node Owner;
 
-		#endregion // Fields
+        #endregion // Fields
 
-		#region Properties
+        #region Properties
 
-		public NodePortViewModel ViewModel { get; set; }
+        public NodePortViewModel ViewModel
+        {
+            get; set;
+        }
 
-		private string _Name;
-		public string Name
-		{
-			get { return _Name; }
-			set
-			{
-				if( value != _Name )
-				{
-					_Name = value;
-					RaisePropertyChanged( "Name" );
-				}
-			}
-		}
+        private string _Name;
+        public string Name
+        {
+            get => this._Name;
+            set
+            {
+                if (value != this._Name)
+                {
+                    this._Name = value;
+                    this.RaisePropertyChanged("Name");
+                }
+            }
+        }
 
-		private bool _AllowMultipleInput;
-		public bool AllowMultipleInput
-		{
-			get { return _AllowMultipleInput; }
-			set
-			{
-				if( value != _AllowMultipleInput )
-				{
-					_AllowMultipleInput = value;
-					RaisePropertyChanged( "AllowMultipleInput" );
-				}
-			}
-		}
+        private bool _AllowMultipleInput;
+        public bool AllowMultipleInput
+        {
+            get => this._AllowMultipleInput;
+            set
+            {
+                if (value != this._AllowMultipleInput)
+                {
+                    this._AllowMultipleInput = value;
+                    this.RaisePropertyChanged("AllowMultipleInput");
+                }
+            }
+        }
 
-		private bool _AllowMultipleOutput;
-		public bool AllowMultipleOutput
-		{
-			get { return _AllowMultipleOutput; }
-			set
-			{
-				if( value != _AllowMultipleOutput )
-				{
-					_AllowMultipleOutput = value;
-					RaisePropertyChanged( "AllowMultipleOutput" );
-				}
-			}
-		}
+        private bool _AllowMultipleOutput;
+        public bool AllowMultipleOutput
+        {
+            get => this._AllowMultipleOutput;
+            set
+            {
+                if (value != this._AllowMultipleOutput)
+                {
+                    this._AllowMultipleOutput = value;
+                    this.RaisePropertyChanged("AllowMultipleOutput");
+                }
+            }
+        }
 
-		private string _DisplayName;
-		public string DisplayName
-		{
-			get { return _DisplayName; }
-			set
-			{
-				if( value != _DisplayName )
-				{
-					_DisplayName = value;
-					RaisePropertyChanged( "DisplayName" );
-				}
-			}
-		}
+        private string _DisplayName;
+        public string DisplayName
+        {
+            get => this._DisplayName;
+            set
+            {
+                if (value != this._DisplayName)
+                {
+                    this._DisplayName = value;
+                    this.RaisePropertyChanged("DisplayName");
+                }
+            }
+        }
 
-		private ObservableCollection<Connector> _Connectors = new ObservableCollection<Connector>();
-		public ObservableCollection<Connector> Connectors
-		{
-			get { return _Connectors; }
-			set
-			{
-				if( value != _Connectors )
-				{
-					_Connectors = value;
-					RaisePropertyChanged( "Connectors" );
-				}
-			}
-		}
+        private ObservableCollection<Connector> _Connectors = new ObservableCollection<Connector>();
+        public ObservableCollection<Connector> Connectors
+        {
+            get => this._Connectors;
+            set
+            {
+                if (value != this._Connectors)
+                {
+                    this._Connectors = value;
+                    this.RaisePropertyChanged("Connectors");
+                }
+            }
+        }
 
-		private bool _IsPortEnabled = true;
-		public bool IsPortEnabled
-		{
-			get { return _IsPortEnabled; }
-			set
-			{
-				if( value != _IsPortEnabled )
-				{
-					_IsPortEnabled = value;
-					RaisePropertyChanged( "IsPortEnabled" );
-				}
-			}
-		}
+        private bool _IsPortEnabled = true;
+        public bool IsPortEnabled
+        {
+            get => this._IsPortEnabled;
+            set
+            {
+                if (value != this._IsPortEnabled)
+                {
+                    this._IsPortEnabled = value;
+                    this.RaisePropertyChanged("IsPortEnabled");
+                }
+            }
+        }
 
-		private bool _IsEnabled = true;
-		public bool IsEnabled
-		{
-			get { return _IsEnabled; }
-			set
-			{
-				if( value != _IsEnabled )
-				{
-					_IsEnabled = value;
-					RaisePropertyChanged( "IsEnabled" );
-				}
-			}
-		}
-		
-		#endregion // Properties
+        private bool _IsEnabled = true;
+        public bool IsEnabled
+        {
+            get => this._IsEnabled;
+            set
+            {
+                if (value != this._IsEnabled)
+                {
+                    this._IsEnabled = value;
+                    this.RaisePropertyChanged("IsEnabled");
+                }
+            }
+        }
 
-		#region Constructor
+        #endregion // Properties
 
-		/// <summary>
-		/// Never call this constructor directly. Use GraphManager.CreateNodeFlowPort() or GraphManager.CreateNodePropertyPort() method.
-		/// </summary>
-		protected NodePort( Guid guid, Node node, bool isInput ) : base( guid )
-		{
-			Owner = node;
-			IsInput = isInput;
-		}
+        #region Constructor
 
-		#endregion // Constructor
+        /// <summary>
+        /// Never call this constructor directly. Use GraphManager.CreateNodeFlowPort() or GraphManager.CreateNodePropertyPort() method.
+        /// </summary>
+        protected NodePort(Guid guid, Node node, bool isInput) : base(guid)
+        {
+            this.Owner = node;
+            this.IsInput = isInput;
+        }
 
-		public event EventHandler<Connector> Connected, Disconnected;
+        #endregion // Constructor
 
-		#region Destructor
+        public event EventHandler<Connector> Connected, Disconnected;
 
-		~NodePort()
-		{
-		}
+        #region Destructor
 
-		#endregion // Destructor
-				
-		#region Methods
+        ~NodePort()
+        {
+        }
 
-		public virtual bool IsConnectable( NodePort otherPort, out string error )
-		{
-			error = "";
-			return true;
-		}
+        #endregion // Destructor
 
-		#endregion // Methods
+        #region Methods
 
-		#region Callbacks
+        public virtual bool IsConnectable(NodePort otherPort, out string error)
+        {
+            error = "";
+            return true;
+        }
 
-		public virtual void OnCreate()
-		{
-			if( NodeGraphManager.OutputDebugInfo )
-				System.Diagnostics.Debug.WriteLine( "NodePort.OnCreate()" );
+        #endregion // Methods
 
-			IsInitialized = true;
+        #region Callbacks
 
-			RaisePropertyChanged( "Model" );
-		}
+        public virtual void OnCreate()
+        {
+            if (NodeGraphManager.OutputDebugInfo)
+            {
+                System.Diagnostics.Debug.WriteLine("NodePort.OnCreate()");
+            }
 
-		public virtual void OnPreDestroy()
-		{
-			if( NodeGraphManager.OutputDebugInfo )
-				System.Diagnostics.Debug.WriteLine( "NodePort.OnPreDestroy()" );
-		}
+            this.IsInitialized = true;
 
-		public virtual void OnPostDestroy()
-		{
-			if( NodeGraphManager.OutputDebugInfo )
-				System.Diagnostics.Debug.WriteLine( "NodePort.OnPostDestroy()" );
-		}
+            this.RaisePropertyChanged("Model");
+        }
 
-		public virtual void OnConnect( Connector connector )
-		{
-			if( NodeGraphManager.OutputDebugInfo )
-				System.Diagnostics.Debug.WriteLine( "NodePort.OnConnect()" );
-			Connected?.Invoke(this, connector);
-		}
+        public virtual void OnPreDestroy()
+        {
+            if (NodeGraphManager.OutputDebugInfo)
+            {
+                System.Diagnostics.Debug.WriteLine("NodePort.OnPreDestroy()");
+            }
+        }
 
-		public virtual void OnDisconnect( Connector connector )
-		{
-			if( NodeGraphManager.OutputDebugInfo )
-				System.Diagnostics.Debug.WriteLine( "NodePort.OnDisconnect()" );
-			Disconnected?.Invoke(this, connector);
-		}
+        public virtual void OnPostDestroy()
+        {
+            if (NodeGraphManager.OutputDebugInfo)
+            {
+                System.Diagnostics.Debug.WriteLine("NodePort.OnPostDestroy()");
+            }
+        }
 
-		public virtual void OnDeserialize()
-		{
-			if( NodeGraphManager.OutputDebugInfo )
-				System.Diagnostics.Debug.WriteLine( "NodePort.OnDeserialize()" );
+        public virtual void OnConnect(Connector connector)
+        {
+            if (NodeGraphManager.OutputDebugInfo)
+            {
+                System.Diagnostics.Debug.WriteLine("NodePort.OnConnect()");
+            }
 
-			IsInitialized = true;
+            Connected?.Invoke(this, connector);
+        }
 
-			RaisePropertyChanged( "Model" );
-		}
+        public virtual void OnDisconnect(Connector connector)
+        {
+            if (NodeGraphManager.OutputDebugInfo)
+            {
+                System.Diagnostics.Debug.WriteLine("NodePort.OnDisconnect()");
+            }
 
-		#endregion // Callbacks
+            Disconnected?.Invoke(this, connector);
+        }
 
-		#region Overrides IXmlSerializable
+        public virtual void OnDeserialize()
+        {
+            if (NodeGraphManager.OutputDebugInfo)
+            {
+                System.Diagnostics.Debug.WriteLine("NodePort.OnDeserialize()");
+            }
 
-		public override void WriteXml( XmlWriter writer )
-		{
-			base.WriteXml( writer );
+            this.IsInitialized = true;
 
-			//{ Begin Creation info : You need not deserialize this block in ReadXml().
-			// These are automatically serialized in Node.ReadXml().
-			writer.WriteAttributeString( "ViewModelType", ViewModel.GetType().AssemblyQualifiedName );
-			writer.WriteAttributeString( "Owner", Owner.Guid.ToString() );
-			writer.WriteAttributeString( "IsInput", IsInput.ToString() );
-			//} End Creation Info.
+            this.RaisePropertyChanged("Model");
+        }
 
-			writer.WriteAttributeString( "Name", Name );
-			writer.WriteAttributeString( "DisplayName", DisplayName );
-			writer.WriteAttributeString( "AllowMultipleInput", AllowMultipleInput.ToString() );
-			writer.WriteAttributeString( "AllowMultipleOutput", AllowMultipleOutput.ToString() );
-			writer.WriteAttributeString( "IsPortEnabled", IsPortEnabled.ToString() );
-			writer.WriteAttributeString( "IsEnabled", IsEnabled.ToString() );
-		}
+        #endregion // Callbacks
 
-		public override void ReadXml( XmlReader reader )
-		{
-			base.ReadXml( reader );
+        #region Overrides IXmlSerializable
 
-			Name = reader.GetAttribute( "Name" );
-			DisplayName = reader.GetAttribute( "DisplayName" );
-			AllowMultipleInput = bool.Parse( reader.GetAttribute( "AllowMultipleInput" ) );
-			AllowMultipleOutput = bool.Parse( reader.GetAttribute( "AllowMultipleOutput" ) );
-			IsPortEnabled = bool.Parse( reader.GetAttribute( "IsPortEnabled" ) );
-			IsEnabled = bool.Parse( reader.GetAttribute( "IsEnabled" ) );
-		}
+        public override void WriteXml(XmlWriter writer)
+        {
+            base.WriteXml(writer);
 
-		#endregion // Overrides IXmlSerializable
-	}
+            //{ Begin Creation info : You need not deserialize this block in ReadXml().
+            // These are automatically serialized in Node.ReadXml().
+            writer.WriteAttributeString("ViewModelType", this.ViewModel.GetType().AssemblyQualifiedName);
+            writer.WriteAttributeString("Owner", this.Owner.Guid.ToString());
+            writer.WriteAttributeString("IsInput", this.IsInput.ToString());
+            //} End Creation Info.
+
+            writer.WriteAttributeString("Name", this.Name);
+            writer.WriteAttributeString("DisplayName", this.DisplayName);
+            writer.WriteAttributeString("AllowMultipleInput", this.AllowMultipleInput.ToString());
+            writer.WriteAttributeString("AllowMultipleOutput", this.AllowMultipleOutput.ToString());
+            writer.WriteAttributeString("IsPortEnabled", this.IsPortEnabled.ToString());
+            writer.WriteAttributeString("IsEnabled", this.IsEnabled.ToString());
+        }
+
+        public override void ReadXml(XmlReader reader)
+        {
+            base.ReadXml(reader);
+
+            this.Name = reader.GetAttribute("Name");
+            this.DisplayName = reader.GetAttribute("DisplayName");
+            this.AllowMultipleInput = bool.Parse(reader.GetAttribute("AllowMultipleInput"));
+            this.AllowMultipleOutput = bool.Parse(reader.GetAttribute("AllowMultipleOutput"));
+            this.IsPortEnabled = bool.Parse(reader.GetAttribute("IsPortEnabled"));
+            this.IsEnabled = bool.Parse(reader.GetAttribute("IsEnabled"));
+        }
+
+        #endregion // Overrides IXmlSerializable
+    }
 }

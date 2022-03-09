@@ -1,92 +1,86 @@
 ﻿using NodeGraph.Model;
 using NodeGraph.View;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 
 namespace NodeGraph.ViewModel
 {
-	public class NodePortViewModel : ViewModelBase
-	{
-		#region Fields
+    public class NodePortViewModel : ViewModelBase
+    {
+        #region Fields
 
-		public NodePortView View;
+        public NodePortView View;
 
-		#endregion // Fields
+        #endregion // Fields
 
-		#region Properties
+        #region Properties
 
-		private NodePort _Model;
-		public NodePort Model
-		{
-			get { return _Model; }
-			set
-			{
-				if( value != _Model )
-				{
-					_Model = value;
-					RaisePropertyChanged( "Model" );
-				}
-			}
-		}
+        private NodePort _Model;
+        public NodePort Model
+        {
+            get => this._Model;
+            set
+            {
+                if (value != this._Model)
+                {
+                    this._Model = value;
+                    this.RaisePropertyChanged("Model");
+                }
+            }
+        }
 
-		#endregion // Properties
+        #endregion // Properties
 
-		#region Constructor
+        #region Constructor
 
-		public NodePortViewModel( NodePort nodePort ) : base( nodePort )
-		{
-			Model = nodePort ?? throw new ArgumentNullException( "NodePort can not be null in NodePortViewModel constructor." );
-			Model.Connectors.CollectionChanged += _ConnectorViewModels_CollectionChanged;
-		}
+        public NodePortViewModel(NodePort nodePort) : base(nodePort)
+        {
+            this.Model = nodePort ?? throw new ArgumentNullException("NodePort can not be null in NodePortViewModel constructor.");
+            this.Model.Connectors.CollectionChanged += this._ConnectorViewModels_CollectionChanged;
+        }
 
-		#endregion // Constructor
+        #endregion // Constructor
 
-		#region Collection Events
+        #region Collection Events
 
-		private void _ConnectorViewModels_CollectionChanged( object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e )
-		{
-			Node node = Model.Owner;
+        private void _ConnectorViewModels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Node node = this.Model.Owner;
 
-			if( null != e.OldItems )
-			{
-				foreach( var item in e.OldItems )
-				{
-					node.ViewModel.RaisePropertyChanged( "Connectors" );
-				}
-			}
+            if (null != e.OldItems)
+            {
+                foreach (object item in e.OldItems)
+                {
+                    node.ViewModel.RaisePropertyChanged("Connectors");
+                }
+            }
 
-			if( null != e.NewItems )
-			{
-				foreach( var item in e.NewItems )
-				{
-					var addedConnector = item as Connector;
-					node.ViewModel.RaisePropertyChanged( "Connectors" );
-				}
-			}
+            if (null != e.NewItems)
+            {
+                foreach (object item in e.NewItems)
+                {
+                    Connector addedConnector = item as Connector;
+                    node.ViewModel.RaisePropertyChanged("Connectors");
+                }
+            }
 
-			if( null != View )
-			{
-				RaisePropertyChanged( "Connectors" );
-			}
-		}
+            if (null != this.View)
+            {
+                this.RaisePropertyChanged("Connectors");
+            }
+        }
 
-		#endregion // Collection Events
+        #endregion // Collection Events
 
-		#region Events
+        #region Events
 
-		protected override void ModelPropertyChanged( object sender, PropertyChangedEventArgs e )
-		{
-			base.ModelPropertyChanged( sender, e );
+        protected override void ModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            base.ModelPropertyChanged(sender, e);
 
-			RaisePropertyChanged( e.PropertyName );
-		}
+            this.RaisePropertyChanged(e.PropertyName);
+        }
 
-		#endregion // Events
-	}
+        #endregion // Events
+    }
 }

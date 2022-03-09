@@ -1,7 +1,7 @@
-﻿using NodeGraph.Model;
+﻿using HarmonyLib;
+using NodeGraph.Model;
 using NodeGraph.View;
 using NodeGraph.ViewModel;
-using PropertyTools.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,12 +9,9 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Media;
 using System.Xml;
-using HarmonyLib;
 
 namespace NodeGraph
 {
@@ -53,10 +50,13 @@ namespace NodeGraph
         {
             //------ create FlowChart.
 
-            var flowChartAttrs = flowChartModelType.GetCustomAttributes(typeof(FlowChartAttribute), false) as FlowChartAttribute[];
+            FlowChartAttribute[] flowChartAttrs = flowChartModelType.GetCustomAttributes(typeof(FlowChartAttribute), false) as FlowChartAttribute[];
             if (1 != flowChartAttrs.Length)
+            {
                 throw new ArgumentException(string.Format("{0} must have ONE FlowChartAttribute", flowChartModelType.Name));
-            var flowChartAttr = flowChartAttrs[0];
+            }
+
+            FlowChartAttribute flowChartAttr = flowChartAttrs[0];
 
             FlowChart flowChart = Activator.CreateInstance(flowChartModelType, new object[] { guid }) as FlowChart;
             FlowCharts.Add(flowChart.Guid, flowChart);
@@ -85,8 +85,7 @@ namespace NodeGraph
 
         public static void DestroyFlowChart(Guid guid)
         {
-            FlowChart flowChart;
-            if (!FlowCharts.TryGetValue(guid, out flowChart))
+            if (!FlowCharts.TryGetValue(guid, out FlowChart flowChart))
             {
                 return;
             }
@@ -94,12 +93,12 @@ namespace NodeGraph
             flowChart.OnPreDestroy();
 
             ObservableCollection<Guid> guids = new ObservableCollection<Guid>();
-            foreach (var node in flowChart.Nodes)
+            foreach (Node node in flowChart.Nodes)
             {
                 guids.Add(node.Guid);
             }
 
-            foreach (var nodeGuid in guids)
+            foreach (Guid nodeGuid in guids)
             {
                 DestroyNode(nodeGuid);
             }
@@ -117,8 +116,7 @@ namespace NodeGraph
 
         public static FlowChart FindFlowChart(Guid guid)
         {
-            FlowChart flowChart;
-            FlowCharts.TryGetValue(guid, out flowChart);
+            FlowCharts.TryGetValue(guid, out FlowChart flowChart);
             return flowChart;
         }
 
@@ -150,17 +148,24 @@ namespace NodeGraph
             //----- exceptions.
 
             if (null == flowChart)
+            {
                 throw new ArgumentNullException("flowChart of CreateNode() can not be null");
+            }
 
             if (null == nodeType)
+            {
                 throw new ArgumentNullException("nodeType of CreateNode() can not be null");
+            }
 
             //----- create node from NodeAttribute.
 
-            var nodeAttrs = nodeType.GetCustomAttributes(typeof(NodeAttribute), false) as NodeAttribute[];
+            NodeAttribute[] nodeAttrs = nodeType.GetCustomAttributes(typeof(NodeAttribute), false) as NodeAttribute[];
             if (1 != nodeAttrs.Length)
+            {
                 throw new ArgumentException(string.Format("{0} must have ONE NodeAttribute", nodeType.Name));
-            var nodeAttr = nodeAttrs[0];
+            }
+
+            NodeAttribute nodeAttr = nodeAttrs[0];
 
             // create node model.
             Node node = Activator.CreateInstance(nodeType, new object[] { guid, flowChart }) as Node;
@@ -186,8 +191,8 @@ namespace NodeGraph
             {
                 //----- create flowPorts from NodeFlowPortAttribute.
 
-                var flowPortAttrs = nodeType.GetCustomAttributes(typeof(NodeFlowPortAttribute), false) as NodeFlowPortAttribute[];
-                foreach (var attr in flowPortAttrs)
+                NodeFlowPortAttribute[] flowPortAttrs = nodeType.GetCustomAttributes(typeof(NodeFlowPortAttribute), false) as NodeFlowPortAttribute[];
+                foreach (NodeFlowPortAttribute attr in flowPortAttrs)
                 {
                     NodeFlowPort port = CreateNodeFlowPort(false,
                         Guid.NewGuid(), node, attr.IsInput,
@@ -197,13 +202,13 @@ namespace NodeGraph
 
                 //----- create nodePropertyPorts( property ) from NodePropertyAttribute.
 
-                var propertyInfos = nodeType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                foreach (var propertyInfo in propertyInfos)
+                PropertyInfo[] propertyInfos = nodeType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                foreach (PropertyInfo propertyInfo in propertyInfos)
                 {
-                    var nodePropertyAttrs = propertyInfo.GetCustomAttributes(typeof(NodePropertyPortAttribute), false) as NodePropertyPortAttribute[];
+                    NodePropertyPortAttribute[] nodePropertyAttrs = propertyInfo.GetCustomAttributes(typeof(NodePropertyPortAttribute), false) as NodePropertyPortAttribute[];
                     if (null != nodePropertyAttrs)
                     {
-                        foreach (var attr in nodePropertyAttrs)
+                        foreach (NodePropertyPortAttribute attr in nodePropertyAttrs)
                         {
                             NodePropertyPort port = CreateNodePropertyPort(false, Guid.NewGuid(), node, attr.IsInput,
                                 attr.ValueType, attr.DefaultValue, propertyInfo.Name, attr.HasEditor,
@@ -215,13 +220,13 @@ namespace NodeGraph
 
                 //----- create nodePropertyPorts( field ) from NodePropertyAttribute.
 
-                var fieldInfos = nodeType.GetFields(BindingFlags.Public | BindingFlags.Instance);
-                foreach (var fieldInfo in fieldInfos)
+                FieldInfo[] fieldInfos = nodeType.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                foreach (FieldInfo fieldInfo in fieldInfos)
                 {
-                    var nodePropertyAttrs = fieldInfo.GetCustomAttributes(typeof(NodePropertyPortAttribute), false) as NodePropertyPortAttribute[];
+                    NodePropertyPortAttribute[] nodePropertyAttrs = fieldInfo.GetCustomAttributes(typeof(NodePropertyPortAttribute), false) as NodePropertyPortAttribute[];
                     if (null != nodePropertyAttrs)
                     {
-                        foreach (var attr in nodePropertyAttrs)
+                        foreach (NodePropertyPortAttribute attr in nodePropertyAttrs)
                         {
                             NodePropertyPort port = CreateNodePropertyPort(false, Guid.NewGuid(), node, attr.IsInput,
                                 attr.ValueType, attr.DefaultValue, fieldInfo.Name, attr.HasEditor,
@@ -237,7 +242,9 @@ namespace NodeGraph
             }
 
             else
+            {
                 node.OnDeserialize();
+            }
 
             //----- return.
 
@@ -246,8 +253,7 @@ namespace NodeGraph
 
         public static void DestroyNode(Guid guid)
         {
-            Node node;
-            if (Nodes.TryGetValue(guid, out node))
+            if (Nodes.TryGetValue(guid, out Node node))
             {
                 //----- destroy.
 
@@ -256,52 +262,60 @@ namespace NodeGraph
                 List<Guid> connectorGuids = new List<Guid>();
                 List<Guid> portGuids = new List<Guid>();
 
-                foreach (var port in node.InputFlowPorts)
+                foreach (NodeFlowPort port in node.InputFlowPorts)
                 {
-                    foreach (var connector in port.Connectors)
+                    foreach (Connector connector in port.Connectors)
                     {
                         if (!connectorGuids.Contains(connector.Guid))
+                        {
                             connectorGuids.Add(connector.Guid);
+                        }
                     }
                     portGuids.Add(port.Guid);
                 }
 
-                foreach (var port in node.OutputFlowPorts)
+                foreach (NodeFlowPort port in node.OutputFlowPorts)
                 {
-                    foreach (var connector in port.Connectors)
+                    foreach (Connector connector in port.Connectors)
                     {
                         if (!connectorGuids.Contains(connector.Guid))
+                        {
                             connectorGuids.Add(connector.Guid);
+                        }
                     }
                     portGuids.Add(port.Guid);
                 }
 
-                foreach (var port in node.InputPropertyPorts)
+                foreach (NodePropertyPort port in node.InputPropertyPorts)
                 {
-                    foreach (var connector in port.Connectors)
+                    foreach (Connector connector in port.Connectors)
                     {
                         if (!connectorGuids.Contains(connector.Guid))
+                        {
                             connectorGuids.Add(connector.Guid);
+                        }
                     }
                     portGuids.Add(port.Guid);
                 }
 
-                foreach (var port in node.OutputPropertyPorts)
+                foreach (NodePropertyPort port in node.OutputPropertyPorts)
                 {
-                    foreach (var connector in port.Connectors)
+                    foreach (Connector connector in port.Connectors)
                     {
                         if (!connectorGuids.Contains(connector.Guid))
+                        {
                             connectorGuids.Add(connector.Guid);
+                        }
                     }
                     portGuids.Add(port.Guid);
                 }
 
-                foreach (var connectorGuid in connectorGuids)
+                foreach (Guid connectorGuid in connectorGuids)
                 {
                     DestroyConnector(connectorGuid);
                 }
 
-                foreach (var portGuid in portGuids)
+                foreach (Guid portGuid in portGuids)
                 {
                     DestroyNodePort(portGuid);
                 }
@@ -324,8 +338,7 @@ namespace NodeGraph
 
         public static Node FindNode(Guid guid)
         {
-            Node node;
-            Nodes.TryGetValue(guid, out node);
+            Nodes.TryGetValue(guid, out Node node);
             return node;
         }
 
@@ -333,7 +346,7 @@ namespace NodeGraph
         {
             List<Node> nodes = new List<Node>();
 
-            foreach (var pair in Nodes)
+            foreach (KeyValuePair<Guid, Node> pair in Nodes)
             {
                 Node node = pair.Value;
                 if ((flowChart == node.Owner) && (header == node.Header))
@@ -353,16 +366,22 @@ namespace NodeGraph
             Type nodeViewModelTypeOverride = null, Type flowPortViewModelTypeOverride = null, Type propertyPortViewModelTypeOverride = null)
         {
             if (null == flowChart)
+            {
                 throw new ArgumentNullException("flowChart of CreateNode() can not be null");
+            }
 
             if (null == referencePort)
+            {
                 throw new ArgumentNullException("referencePort of CreateNode() can not be null");
+            }
 
             Type portType = referencePort.GetType();
             bool isFlowPort = typeof(NodeFlowPort).IsAssignableFrom(portType);
             bool isPropertyPort = typeof(NodePropertyPort).IsAssignableFrom(portType);
             if (!isFlowPort && !isPropertyPort)
+            {
                 throw new ArgumentException("CreateRouterNode() is only supported for NodeFlowPort or NodePropertyPort");
+            }
 
             Node node = CreateNode(false, guid, flowChart, typeof(Node), X, Y, ZIndex,
                 (null == nodeViewModelTypeOverride) ? typeof(RouterNodeViewModel) : nodeViewModelTypeOverride,
@@ -423,17 +442,24 @@ namespace NodeGraph
             //----- exceptions.
 
             if (null == flowChart)
+            {
                 throw new ArgumentNullException("flowChart of CreateNode() can not be null");
+            }
 
             //------ create connector.
 
             if (null == connectorType)
+            {
                 connectorType = typeof(Connector);
+            }
 
-            var connectorAttrs = connectorType.GetCustomAttributes(typeof(ConnectorAttribute), false) as ConnectorAttribute[];
+            ConnectorAttribute[] connectorAttrs = connectorType.GetCustomAttributes(typeof(ConnectorAttribute), false) as ConnectorAttribute[];
             if (1 != connectorAttrs.Length)
+            {
                 throw new ArgumentException(string.Format("{0} must have ONE ConnectorAttribute", connectorType.Name));
-            var connectorAttr = connectorAttrs[0];
+            }
+
+            ConnectorAttribute connectorAttr = connectorAttrs[0];
 
             Connector connector = Activator.CreateInstance(connectorType, new object[] { guid, flowChart }) as Connector;
             Connectors.Add(connector.Guid, connector);
@@ -458,8 +484,7 @@ namespace NodeGraph
 
         public static void DestroyConnector(Guid guid)
         {
-            Connector connector;
-            if (Connectors.TryGetValue(guid, out connector))
+            if (Connectors.TryGetValue(guid, out Connector connector))
             {
                 //----- history.
 
@@ -491,8 +516,7 @@ namespace NodeGraph
 
         public static Connector FindConnector(Guid guid)
         {
-            Connector connector;
-            Connectors.TryGetValue(guid, out connector);
+            Connectors.TryGetValue(guid, out Connector connector);
             return connector;
         }
 
@@ -504,7 +528,10 @@ namespace NodeGraph
         {
             NodePort port = FindNodeFlowPort(guid);
             if (null == port)
+            {
                 port = FindNodePropertyPort(guid);
+            }
+
             return port;
         }
 
@@ -532,12 +559,12 @@ namespace NodeGraph
             port.OnPreDestroy();
 
             List<Guid> guids = new List<Guid>();
-            foreach (var connector in port.Connectors)
+            foreach (Connector connector in port.Connectors)
             {
                 guids.Add(connector.Guid);
             }
 
-            foreach (var connectorGuid in guids)
+            foreach (Guid connectorGuid in guids)
             {
                 DestroyConnector(connectorGuid);
             }
@@ -572,9 +599,13 @@ namespace NodeGraph
             port.OnPostDestroy();
 
             if (isFlowPort)
+            {
                 NodeFlowPorts.Remove(guid);
+            }
             else
+            {
                 NodePropertyPorts.Remove(guid);
+            }
         }
 
         private static void FindConnectedPortsInternal(NodePort port, List<NodePort> outConnectedPorts)
@@ -588,7 +619,7 @@ namespace NodeGraph
             {
                 if (port.IsInput)
                 {
-                    foreach (var connector in port.Connectors)
+                    foreach (Connector connector in port.Connectors)
                     {
                         NodePort nextPort = connector.StartPort;
                         Node nextNode = nextPort.Owner;
@@ -611,7 +642,7 @@ namespace NodeGraph
                 }
                 else
                 {
-                    foreach (var connector in port.Connectors)
+                    foreach (Connector connector in port.Connectors)
                     {
                         NodePort nextPort = connector.EndPort;
                         Node nextNode = nextPort.Owner;
@@ -665,7 +696,9 @@ namespace NodeGraph
             //----- exceptions.
 
             if (null == node)
+            {
                 throw new ArgumentNullException("node of CreateNodeFlowPort() can not be null");
+            }
 
             //----- create port.
 
@@ -681,7 +714,7 @@ namespace NodeGraph
             NodeFlowPorts.Add(port.Guid, port);
 
             // create flowPort viewmodel.
-            var portVM = Activator.CreateInstance((null != portViewModelTypeOverride) ? portViewModelTypeOverride : typeof(NodeFlowPortViewModel),
+            NodeFlowPortViewModel portVM = Activator.CreateInstance((null != portViewModelTypeOverride) ? portViewModelTypeOverride : typeof(NodeFlowPortViewModel),
                 new object[] { port }) as NodeFlowPortViewModel;
 
             // add port to node.
@@ -716,14 +749,13 @@ namespace NodeGraph
 
         public static NodeFlowPort FindNodeFlowPort(Guid guid)
         {
-            NodeFlowPort port;
-            NodeFlowPorts.TryGetValue(guid, out port);
+            NodeFlowPorts.TryGetValue(guid, out NodeFlowPort port);
             return port;
         }
 
         public static NodeFlowPort FindNodeFlowPort(Node node, string propertyName)
         {
-            foreach (var pair in NodeFlowPorts)
+            foreach (KeyValuePair<Guid, NodeFlowPort> pair in NodeFlowPorts)
             {
                 NodeFlowPort port = pair.Value;
                 if ((node == port.Owner) && (propertyName == port.Name))
@@ -761,7 +793,9 @@ namespace NodeGraph
             //----- exceptions.
 
             if (null == node)
+            {
                 throw new ArgumentNullException("node of CreateNodePropertyPort() can not be null");
+            }
 
             //----- create port.
 
@@ -776,7 +810,7 @@ namespace NodeGraph
             NodePropertyPorts.Add(port.Guid, port);
 
             // create propertyPort viewmodel.
-            var portVM = Activator.CreateInstance((null != portViewModelTypeOverride) ? portViewModelTypeOverride : typeof(NodePropertyPortViewModel),
+            NodePropertyPortViewModel portVM = Activator.CreateInstance((null != portViewModelTypeOverride) ? portViewModelTypeOverride : typeof(NodePropertyPortViewModel),
                 new object[] { port }) as NodePropertyPortViewModel;
             port.ViewModel = portVM;
 
@@ -811,14 +845,13 @@ namespace NodeGraph
 
         public static NodePropertyPort FindNodePropertyPort(Guid guid)
         {
-            NodePropertyPort port;
-            NodePropertyPorts.TryGetValue(guid, out port);
+            NodePropertyPorts.TryGetValue(guid, out NodePropertyPort port);
             return port;
         }
 
         public static NodePropertyPort FindNodePropertyPort(Node node, string propertyName)
         {
-            foreach (var pair in NodePropertyPorts)
+            foreach (KeyValuePair<Guid, NodePropertyPort> pair in NodePropertyPorts)
             {
                 NodePropertyPort port = pair.Value;
                 if ((node == port.Owner) && (propertyName == port.Name))
@@ -866,7 +899,9 @@ namespace NodeGraph
         public static void DisconnectFrom(NodePort port, Connector connector)
         {
             if (null == port)
+            {
                 return;
+            }
 
             connector.OnDisconnect(port);
             port.OnDisconnect(connector);
@@ -885,12 +920,12 @@ namespace NodeGraph
         public static void DisconnectAll(NodePort port)
         {
             List<Guid> connectorGuids = new List<Guid>();
-            foreach (var connection in port.Connectors)
+            foreach (Connector connection in port.Connectors)
             {
                 connectorGuids.Add(connection.Guid);
             }
 
-            foreach (var guid in connectorGuids)
+            foreach (Guid guid in connectorGuids)
             {
                 DestroyConnector(guid);
             }
@@ -899,7 +934,9 @@ namespace NodeGraph
         public static void BeginConnection(NodePort port)
         {
             if (IsConnecting)
+            {
                 throw new InvalidOperationException("You can not connect node during other connection occurs.");
+            }
 
             IsConnecting = true;
 
@@ -984,7 +1021,7 @@ namespace NodeGraph
             }
 
             // already connectecd.
-            foreach (var connector in FirstConnectionPort.Connectors)
+            foreach (Connector connector in FirstConnectionPort.Connectors)
             {
                 if (connector.StartPort == otherPort)
                 {
@@ -1037,35 +1074,45 @@ namespace NodeGraph
         private static bool IsReachable(Node nodeFrom, Node nodeTo)
         {
             if (_AlreadyCheckedNodes.Contains(nodeFrom))
+            {
                 return false;
+            }
 
             _AlreadyCheckedNodes.Add(nodeFrom);
 
-            foreach (var port in nodeFrom.OutputFlowPorts)
+            foreach (NodeFlowPort port in nodeFrom.OutputFlowPorts)
             {
-                foreach (var connector in port.Connectors)
+                foreach (Connector connector in port.Connectors)
                 {
                     NodePort endPort = connector.EndPort;
                     Node nextNode = endPort.Owner;
                     if (nextNode == nodeTo)
+                    {
                         return true;
+                    }
 
                     if (IsReachable(nextNode, nodeTo))
+                    {
                         return true;
+                    }
                 }
             }
 
-            foreach (var port in nodeFrom.OutputPropertyPorts)
+            foreach (NodePropertyPort port in nodeFrom.OutputPropertyPorts)
             {
-                foreach (var connector in port.Connectors)
+                foreach (Connector connector in port.Connectors)
                 {
                     NodePort endPort = connector.EndPort;
                     Node nextNode = endPort.Owner;
                     if (nextNode == nodeTo)
+                    {
                         return true;
+                    }
 
                     if (IsReachable(nextNode, nodeTo))
+                    {
                         return true;
+                    }
                 }
             }
 
@@ -1096,11 +1143,14 @@ namespace NodeGraph
             {
                 NodePort startPort = FindNodePort(CurrentConnector.StartPort.Guid);
                 if (null == endPort)
+                {
                     endPort = FindNodePort(CurrentConnector.EndPort.Guid);
+                }
+
                 if (!startPort.AllowMultipleOutput)
                 {
                     List<Guid> connectorGuids = new List<Guid>();
-                    foreach (var connector in startPort.Connectors)
+                    foreach (Connector connector in startPort.Connectors)
                     {
                         if (CurrentConnector.Guid != connector.Guid)
                         {
@@ -1108,7 +1158,7 @@ namespace NodeGraph
                         }
                     }
 
-                    foreach (var guid in connectorGuids)
+                    foreach (Guid guid in connectorGuids)
                     {
                         DestroyConnector(guid);
                     }
@@ -1117,7 +1167,7 @@ namespace NodeGraph
                 if (!endPort.AllowMultipleInput)
                 {
                     List<Guid> connectorGuids = new List<Guid>();
-                    foreach (var connector in endPort.Connectors)
+                    foreach (Connector connector in endPort.Connectors)
                     {
                         if (CurrentConnector.Guid != connector.Guid)
                         {
@@ -1125,7 +1175,7 @@ namespace NodeGraph
                         }
                     }
 
-                    foreach (var guid in connectorGuids)
+                    foreach (Guid guid in connectorGuids)
                     {
                         DestroyConnector(guid);
                     }
@@ -1149,7 +1199,9 @@ namespace NodeGraph
         public static void UpdateConnection(Point mousePos)
         {
             if (null != CurrentConnector)
+            {
                 CurrentConnector.ViewModel.View.BuildCurveData(mousePos);
+            }
         }
 
         #endregion // Connection
@@ -1171,7 +1223,9 @@ namespace NodeGraph
             BeginDragging(flowChart.ViewModel.View);
 
             if (IsNodeDragging)
+            {
                 throw new InvalidOperationException("Node is already being dragging.");
+            }
 
             IsNodeDragging = true;
             _NodeDraggingFlowChartGuid = flowChart.Guid;
@@ -1188,14 +1242,15 @@ namespace NodeGraph
         public static void DragNode(Point delta)
         {
             if (!IsNodeDragging)
+            {
                 return;
+            }
 
             AreNodesReallyDragged = true;
 
-            ObservableCollection<Guid> selectedNodes;
-            if (SelectedNodes.TryGetValue(_NodeDraggingFlowChartGuid, out selectedNodes))
+            if (SelectedNodes.TryGetValue(_NodeDraggingFlowChartGuid, out ObservableCollection<Guid> selectedNodes))
             {
-                foreach (var guid in selectedNodes)
+                foreach (Guid guid in selectedNodes)
                 {
                     Node node = FindNode(guid);
                     node.X += delta.X;
@@ -1253,9 +1308,11 @@ namespace NodeGraph
 
         public static ObservableCollection<Guid> GetSelectionList(FlowChart flowChart)
         {
-            ObservableCollection<Guid> selectionList;
-            if (!SelectedNodes.TryGetValue(flowChart.Guid, out selectionList))
+            if (!SelectedNodes.TryGetValue(flowChart.Guid, out ObservableCollection<Guid> selectionList))
+            {
                 return null;
+            }
+
             return selectionList;
         }
 
@@ -1330,7 +1387,7 @@ namespace NodeGraph
         {
             ObservableCollection<Guid> selectionList = GetSelectionList(flowChart);
 
-            foreach (var guid in selectionList)
+            foreach (Guid guid in selectionList)
             {
                 Node node = FindNode(guid);
                 node.ViewModel.IsSelected = false;
@@ -1346,7 +1403,7 @@ namespace NodeGraph
             DeselectAllNodes(flowChart);
 
             ObservableCollection<Guid> selectionList = GetSelectionList(flowChart);
-            foreach (var pair in Nodes)
+            foreach (KeyValuePair<Guid, Node> pair in Nodes)
             {
                 Node node = pair.Value;
                 if (node.Owner == flowChart)
@@ -1357,13 +1414,7 @@ namespace NodeGraph
             }
         }
 
-        public static bool IsSelecting
-        {
-            get
-            {
-                return (null != _FlowChartSelecting);
-            }
-        }
+        public static bool IsSelecting => (null != _FlowChartSelecting);
         private static FlowChart _FlowChartSelecting;
         public static Point SelectingStartPoint
         {
@@ -1415,7 +1466,7 @@ namespace NodeGraph
                 bAdd = true;
             }
 
-            foreach (var pair in Nodes)
+            foreach (KeyValuePair<Guid, Node> pair in Nodes)
             {
                 Node node = pair.Value;
                 if (node.Owner == _FlowChartSelecting)
@@ -1500,7 +1551,7 @@ namespace NodeGraph
                     {
                         DeselectAllNodes(_FlowChartSelecting);
 
-                        foreach (var guid in _OriginalSelections)
+                        foreach (Guid guid in _OriginalSelections)
                         {
                             AddSelection(FindNode(guid));
                         }
@@ -1511,7 +1562,7 @@ namespace NodeGraph
                     if (null != _FlowChartSelecting)
                     {
                         ObservableCollection<Guid> selectionList = GetSelectionList(_FlowChartSelecting);
-                        foreach (var guid in _OriginalSelections)
+                        foreach (Guid guid in _OriginalSelections)
                         {
                             if (!selectionList.Contains(guid))
                             {
@@ -1521,7 +1572,7 @@ namespace NodeGraph
                             }
                         }
 
-                        foreach (var guid in selectionList)
+                        foreach (Guid guid in selectionList)
                         {
                             if (-1 == Array.FindIndex(_OriginalSelections, (currentGuid) => guid == currentGuid))
                             {
@@ -1553,7 +1604,7 @@ namespace NodeGraph
             List<Node> nodes = new List<Node>();
 
             int maxZIndex = int.MinValue;
-            foreach (var pair in Nodes)
+            foreach (KeyValuePair<Guid, Node> pair in Nodes)
             {
                 Node currentNode = pair.Value;
                 maxZIndex = Math.Max(maxZIndex, currentNode.ZIndex);
@@ -1565,7 +1616,7 @@ namespace NodeGraph
             nodes.Sort((left, right) => left.ZIndex.CompareTo(right.ZIndex));
 
             int zIndex = 0;
-            foreach (var currentNode in nodes)
+            foreach (Node currentNode in nodes)
             {
                 currentNode.ZIndex = zIndex++;
             }
@@ -1579,15 +1630,14 @@ namespace NodeGraph
         {
             List<Guid> guids = new List<Guid>();
 
-            ObservableCollection<Guid> selectedNodeGuids;
-            SelectedNodes.TryGetValue(flowChart.Guid, out selectedNodeGuids);
+            SelectedNodes.TryGetValue(flowChart.Guid, out ObservableCollection<Guid> selectedNodeGuids);
 
-            foreach (var guid in selectedNodeGuids)
+            foreach (Guid guid in selectedNodeGuids)
             {
                 guids.Add(guid);
             }
 
-            foreach (var guid in guids)
+            foreach (Guid guid in guids)
             {
                 DestroyNode(guid);
             }
@@ -1606,14 +1656,16 @@ namespace NodeGraph
             maxY = double.MinValue;
 
             bool hasNodes = false;
-            foreach (var pair in Nodes)
+            foreach (KeyValuePair<Guid, Node> pair in Nodes)
             {
                 Node node = pair.Value;
                 NodeView nodeView = node.ViewModel.View;
                 if (node.Owner == flowChart)
                 {
                     if (bOnlySelected && !node.ViewModel.IsSelected)
+                    {
                         continue;
+                    }
 
                     minX = Math.Min(node.X, minX);
                     maxX = Math.Max(node.X + nodeView.ActualWidth, maxX);
@@ -1635,30 +1687,34 @@ namespace NodeGraph
 
         private static XmlWriter CreateXmlWriter(StringWriter sw)
         {
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.IndentChars = "\t";
-            settings.NewLineChars = "\n";
-            settings.NewLineHandling = NewLineHandling.Replace;
-            settings.NewLineOnAttributes = false;
+            XmlWriterSettings settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "\t",
+                NewLineChars = "\n",
+                NewLineHandling = NewLineHandling.Replace,
+                NewLineOnAttributes = false
+            };
             XmlWriter writer = XmlWriter.Create(sw, settings);
             return writer;
         }
 
         public static void Serialize(string filePath)
         {
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.IndentChars = "\t";
-            settings.NewLineChars = "\n";
-            settings.NewLineHandling = NewLineHandling.Replace;
-            settings.NewLineOnAttributes = false;
+            XmlWriterSettings settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "\t",
+                NewLineChars = "\n",
+                NewLineHandling = NewLineHandling.Replace,
+                NewLineOnAttributes = false
+            };
             using (XmlWriter writer = XmlWriter.Create(filePath, settings))
             {
                 writer.WriteStartDocument();
                 {
                     writer.WriteStartElement("NodeGraphManager");
-                    foreach (var pair in FlowCharts)
+                    foreach (KeyValuePair<Guid, FlowChart> pair in FlowCharts)
                     {
                         writer.WriteStartElement("FlowChart");
                         pair.Value.WriteXml(writer);
@@ -1701,7 +1757,7 @@ namespace NodeGraph
                 }
             }
 
-            foreach (var flowChart in loadedFlowCharts)
+            foreach (FlowChart flowChart in loadedFlowCharts)
             {
                 flowChart.OnDeserialize();
             }
@@ -1879,7 +1935,9 @@ namespace NodeGraph
             }
 
             if (null == targetEvent)
+            {
                 return false;
+            }
 
             return targetEvent.Invoke(sender, args);
         }
@@ -1894,7 +1952,7 @@ namespace NodeGraph
         private static void Node_SelectionList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
             FlowChart flowChart = null;
-            foreach (var pair in SelectedNodes)
+            foreach (KeyValuePair<Guid, ObservableCollection<Guid>> pair in SelectedNodes)
             {
                 if (pair.Value == sender)
                 {
@@ -1964,7 +2022,7 @@ namespace NodeGraph
 
         public static void ClearNodeExecutionStates(FlowChart flowChart)
         {
-            foreach (var pair in Nodes)
+            foreach (KeyValuePair<Guid, Node> pair in Nodes)
             {
                 Node node = pair.Value;
                 if (flowChart == node.Owner)
@@ -1981,20 +2039,22 @@ namespace NodeGraph
         /// </summary>
         public static void WrapProperties()
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            AssemblyName myAsmName = new AssemblyName();
-            myAsmName.Name = "Dynamic";
-            var patcher = new Harmony("NodeGraphStarupPropertyPullingPatcher");
-            foreach (var assembly in assemblies)
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            AssemblyName myAsmName = new AssemblyName
             {
-                var types = assembly.GetTypes().Where(t => t.GetProperties().Any(p => p.GetCustomAttribute<NodePropertyPortAttribute>()?.IsPulling ?? false));
+                Name = "Dynamic"
+            };
+            Harmony patcher = new Harmony("NodeGraphStarupPropertyPullingPatcher");
+            foreach (Assembly assembly in assemblies)
+            {
+                IEnumerable<Type> types = assembly.GetTypes().Where(t => t.GetProperties().Any(p => p.GetCustomAttribute<NodePropertyPortAttribute>()?.IsPulling ?? false));
                 foreach (Type type in types)
                 {
-                    var props = type.GetProperties().Where(p => p.GetCustomAttribute<NodePropertyPortAttribute>()?.IsPulling ?? false);
-                    foreach (var prop in props)
+                    IEnumerable<PropertyInfo> props = type.GetProperties().Where(p => p.GetCustomAttribute<NodePropertyPortAttribute>()?.IsPulling ?? false);
+                    foreach (PropertyInfo prop in props)
                     {
-                        var original = AccessTools.PropertyGetter(type, prop.Name);
-                        var prefix = typeof(NodeGraphManager).GetMethod(nameof(PullingGetterPrefix));
+                        MethodInfo original = AccessTools.PropertyGetter(type, prop.Name);
+                        MethodInfo prefix = typeof(NodeGraphManager).GetMethod(nameof(PullingGetterPrefix));
                         patcher.Patch(original, prefix: new HarmonyMethod(prefix));
                     }
                 }
@@ -2012,7 +2072,7 @@ namespace NodeGraph
         public static bool PullingGetterPrefix(dynamic __instance, ref dynamic __result, MethodBase __originalMethod)
         {
             //extract name of property from getter method name
-            var propname = __originalMethod.Name.Remove(0, __originalMethod.Name.IndexOf("_") + 1);
+            string propname = __originalMethod.Name.Remove(0, __originalMethod.Name.IndexOf("_") + 1);
             if (FindNodePropertyPort(__instance, propname) is NodePropertyPort port)
             {
                 if (port.Connectors.Any(c => c.StartPort != null))
